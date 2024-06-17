@@ -66,7 +66,14 @@ describe( "Basic features" , () => {
 			deltaOdds: 2
 		} ) ;
 
+		expect( Math.round( manager.getPowerLevel( 650 ) ) ).to.be( 88 ) ;
+		expect( Math.round( manager.getPowerLevel( 750 ) ) ).to.be( 177 ) ;
+		expect( manager.getPowerLevel( 800 ) ).to.be( 250 ) ;
+		expect( manager.getPowerLevel( 900 ) ).to.be( 500 ) ;
+		expect( manager.getPowerLevel( 1000 ) ).to.be( 1000 ) ;
+		expect( Math.round( manager.getPowerLevel( 1050 ) ) ).to.be( 1414 ) ;
 		expect( manager.getPowerLevel( 1100 ) ).to.be( 2000 ) ;
+		expect( Math.round( manager.getPowerLevel( 1150 ) ) ).to.be( 2828 ) ;
 		expect( manager.getPowerLevel( 1200 ) ).to.be( 4000 ) ;
 		expect( Math.round( manager.getPowerLevel( 1250 ) ) ).to.be( 5657 ) ;
 		expect( Math.round( manager.getPowerLevel( 1400 ) ) ).to.be( 16000 ) ;
