@@ -28,12 +28,50 @@
 
 
 
-const Elo = require( '..' ) ;
+const elo = require( '..' ) ;
+const Manager = elo.Manager ;
+const Rating = elo.Rating ;
 
 
 
-describe( "..." , function() {
+describe( "Basic features" , () => {
 	
-	it( "..." ) ;
+	it( "Compute odds" , () => {
+		var manager = new Manager( {
+			delta: 100 ,
+			deltaOdds: 2
+		} ) ;
+		//log( "Manager: %I" , manager ) ;
+
+		expect( manager.getEloOdds( 1200 , 1100 ) ).to.be( 2 ) ;
+		expect( manager.getEloOdds( 600 , 500 ) ).to.be( 2 ) ;
+		expect( manager.getEloOdds( 2600 , 2500 ) ).to.be( 2 ) ;
+		expect( manager.getEloOdds( 1100 , 1200 ) ).to.be( 0.5 ) ;
+
+		expect( manager.getEloOdds( 1400 , 1200 ) ).to.be( 4 ) ;
+		expect( manager.getEloOdds( 1500 , 1200 ) ).to.be( 8 ) ;
+		expect( manager.getEloOdds( 1600 , 1200 ) ).to.be( 16 ) ;
+		expect( manager.getEloOdds( 1700 , 1200 ) ).to.be( 32 ) ;
+		expect( manager.getEloOdds( 1800 , 1200 ) ).to.be( 64 ) ;
+
+		expect( manager.getEloOdds( 1400 , 1375 ) ).to.be.around( 1.189207115002721 ) ;
+		expect( manager.getEloOdds( 1400 , 1350 ) ).to.be.around( 1.4142135623730951 ) ;
+		expect( manager.getEloOdds( 1400 , 1325 ) ).to.be.around( 1.6817928305074292 ) ;
+		expect( manager.getEloOdds( 1400 , 1250 ) ).to.be.around( 2.82842712474619 ) ;
+	} ) ;
+
+	it( "Compute power level" , () => {
+		var manager = new Manager( {
+			delta: 100 ,
+			deltaOdds: 2
+		} ) ;
+
+		expect( manager.getPowerLevel( 1100 ) ).to.be( 2000 ) ;
+		expect( manager.getPowerLevel( 1200 ) ).to.be( 4000 ) ;
+		expect( Math.round( manager.getPowerLevel( 1250 ) ) ).to.be( 5657 ) ;
+		expect( Math.round( manager.getPowerLevel( 1400 ) ) ).to.be( 16000 ) ;
+		expect( Math.round( manager.getPowerLevel( 1430 ) ) ).to.be( 19698 ) ;
+		expect( Math.round( manager.getPowerLevel( 1437 ) ) ).to.be( 20678 ) ;
+	} ) ;
 } ) ;
 
