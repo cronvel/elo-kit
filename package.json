@@ -1,0 +1,36 @@
+{
+  "name": "elo-kit",
+  "version": "0.0.0",
+  "description": "Elo rating system.",
+  "main": "lib/elo.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "scripts": {
+    "test": "tea-time -R dot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cronvel/elo-kit.git"
+  },
+  "keywords": [
+    "elo",
+    "rating"
+  ],
+  "author": "Cédric Ronvel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cronvel/elo-kit/issues"
+  },
+  "copyright": {
+    "title": "ELO Kit",
+    "years": [
+      2024
+    ],
+    "owner": "Cédric Ronvel"
+  },
+  "engines": {
+    "node": ">=16.13.0"
+  }
+}
