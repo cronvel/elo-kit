@@ -34,7 +34,7 @@ const Rating = elo.Rating ;
 
 
 
-describe( "Basic features" , () => {
+describe( "Internal API" , () => {
 	
 	it( "Compute odds" , () => {
 		var manager = new Manager( {
@@ -79,6 +79,40 @@ describe( "Basic features" , () => {
 		expect( Math.round( manager.getPowerLevel( 1400 ) ) ).to.be( 16000 ) ;
 		expect( Math.round( manager.getPowerLevel( 1430 ) ) ).to.be( 19698 ) ;
 		expect( Math.round( manager.getPowerLevel( 1437 ) ) ).to.be( 20678 ) ;
+	} ) ;
+
+	it( "Compute ELO reward" , () => {
+		var manager = new Manager( {
+			delta: 100 ,
+			deltaOdds: 2 ,
+			baseReward: 10
+		} ) ;
+
+		expect( manager.getEloWinReward( 1000 , 1000 ) ).to.be( 10 ) ;
+
+		expect( manager.getEloWinReward( 1050 , 1000 ) ).to.be.around( 8.284271247461898 ) ;
+		expect( manager.getEloWinReward( 1000 , 1050 ) ).to.be.around( 11.7157287525381 ) ;
+		expect( manager.getEloWinReward( 1000 , 1050 ) / manager.getEloWinReward( 1050 , 1000 ) ).to.be.around( 1.4142135623730951 ) ;
+
+		expect( manager.getEloWinReward( 1100 , 1000 ) ).to.be.around( 6.666666666666668 ) ;
+		expect( manager.getEloWinReward( 1000 , 1100 ) ).to.be.around( 13.333333333333336 ) ;
+		expect( manager.getEloWinReward( 1000 , 1100 ) / manager.getEloWinReward( 1100 , 1000 ) ).to.be.around( 2 ) ;
+
+		expect( manager.getEloWinReward( 1150 , 1000 ) ).to.be.around( 5.224077499274829 ) ;
+		expect( manager.getEloWinReward( 1000 , 1150 ) ).to.be.around( 14.775922500725171 ) ;
+		expect( manager.getEloWinReward( 1000 , 1150 ) / manager.getEloWinReward( 1150 , 1000 ) ).to.be.around( 2.8284271247461903 ) ;
+
+		expect( manager.getEloWinReward( 1200 , 1000 ) ).to.be.around( 4 ) ;
+		expect( manager.getEloWinReward( 1000 , 1200 ) ).to.be.around( 16 ) ;
+		expect( manager.getEloWinReward( 1000 , 1200 ) / manager.getEloWinReward( 1200 , 1000 ) ).to.be.around( 4 ) ;
+
+		expect( manager.getEloWinReward( 1300 , 1000 ) ).to.be.around( 2.222222222222223 ) ;
+		expect( manager.getEloWinReward( 1000 , 1300 ) ).to.be.around( 17.77777777777778 ) ;
+		expect( manager.getEloWinReward( 1000 , 1300 ) / manager.getEloWinReward( 1300 , 1000 ) ).to.be.around( 8 ) ;
+
+		expect( manager.getEloWinReward( 1400 , 1000 ) ).to.be.around( 1.1764705882352944 ) ;
+		expect( manager.getEloWinReward( 1000 , 1400 ) ).to.be.around( 18.823529411764707 ) ;
+		expect( manager.getEloWinReward( 1000 , 1400 ) / manager.getEloWinReward( 1400 , 1000 ) ).to.be.around( 16 ) ;
 	} ) ;
 } ) ;
 

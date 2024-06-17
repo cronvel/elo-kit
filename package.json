@@ -6,7 +6,10 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "math-kit": "^0.16.25",
+    "string-kit": "^0.18.3"
+  },
   "scripts": {
     "test": "tea-time -R dot"
   },
