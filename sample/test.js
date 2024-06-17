@@ -17,7 +17,7 @@ var cliManager = new elo.Manager( {
 	delta: 100 ,
 	deltaOdds: 2 ,
 	baseReward: 10 ,
-	historySize: 10
+	historySize: 20
 } ) ;
 
 var cliPlayerList = require( './players.json' ) ;
@@ -41,6 +41,33 @@ function matchMaker( playerList ) {
 	let b = rng.random( playerList.length - 1 ) ;
 	if ( b >= a ) { b ++ ; }
 	return [ playerList[ a ] , playerList[ b ] ] ;
+}
+
+
+
+function matchMakerSameLeague( playerList , maxEloDelta = 100 , maxTry = 3 ) {
+	let a = rng.random( playerList.length ) ;
+	let playerA = playerList[ a ] ;
+	let closestEloDelta = Infinity ;
+	let closestPlayer = null ;
+
+	for ( let i = 0 ; i < maxTry ; i ++ ) {
+		let b = rng.random( playerList.length - 1 ) ;
+		if ( b >= a ) { b ++ ; }
+		let playerB = playerList[ b ] ;
+
+		let eloDelta = Math.abs( playerA.rating.elo - playerB.rating.elo ) ;
+		if ( eloDelta <= maxEloDelta ) {
+			return [ playerA , playerB ] ;
+		}
+		
+		if ( eloDelta < closestEloDelta ) {
+			closestEloDelta = eloDelta ;
+			closestPlayer = playerB ;
+		}
+	}
+
+	return [ playerA , closestPlayer ] ;
 }
 
 
@@ -88,20 +115,21 @@ function displayPlayers( playerList ) {
 
 
 
-function test( manager , playerList , count = 10 ) {
+function test( manager , playerList , matchCount = 10 , sameLeague = false ) {
 	initPlayerList( manager , playerList ) ;
 
-	for ( let i = 0 ; i < count ; i ++ ) {
-		let matchPlayers = matchMaker( playerList ) ;
+	for ( let i = 0 ; i < matchCount ; i ++ ) {
+		let matchPlayers =
+			sameLeague ? matchMakerSameLeague( playerList , 100 , 5 ) :
+			matchMaker( playerList ) ;
+
 		match( manager , ... matchPlayers ) ;
 	}
 	
-	console.log( "\n" ) ;
 	displayPlayers( playerList ) ;
-	console.log( "\n" ) ;
 }
 
 
 
-test( cliManager , cliPlayerList , 10000 ) ;
+test( cliManager , cliPlayerList , 10000 , false ) ;
 
