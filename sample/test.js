@@ -11,7 +11,6 @@ rng.seed() ;
 
 
 
-
 var cliManager = new elo.Manager( {
 	baseElo: 1000 ,
 	delta: 100 ,
@@ -24,10 +23,9 @@ var cliPlayerList = require( './players.json' ) ;
 
 
 
-
 function initPlayerList( manager , playerList ) {
 	for ( let player of playerList ) {
-		player.rating = new manager.createRating() ;
+		player.rating = manager.createRating() ;
 		player.count = 0 ;
 		player.win = 0 ;
 		player.lose = 0 ;
@@ -107,7 +105,7 @@ function displayPlayers( playerList ) {
 				"%s: %i ELO (c:%i w:%i l:%i SK:%i)        Hist: %J" ,
 				player.name , player.rating.elo ,
 				player.count , player.win , player.lose , player.skill ,
-				player.rating.eloHistory.map( v => Math.floor( v ) )
+				player.rating.history.map( v => Math.floor( v.score ) )
 			)
 		) ;
 	}
