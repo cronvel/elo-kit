@@ -6,6 +6,9 @@ const elo = require( '..' ) ;
 const string = require( 'string-kit' ) ;
 const math = require( 'math-kit' ) ;
 
+const termkit = require( 'terminal-kit' ) ;
+const term = termkit.terminal ;
+
 var rng = new math.random.Entropy() ;
 rng.seed() ;
 
@@ -16,7 +19,7 @@ var cliManager = new elo.Manager( {
 	delta: 100 ,
 	deltaOdds: 2 ,
 	baseReward: 10 ,
-	historySize: 20
+	historySize: 12
 } ) ;
 
 var cliPlayerList = require( './players.json' ) ;
@@ -25,17 +28,23 @@ var cliPlayerList = require( './players.json' ) ;
 
 function initPlayerList( manager , playerList ) {
 	for ( let player of playerList ) {
-		player.rating = manager.createRating() ;
-		player.count = 0 ;
-		player.win = 0 ;
-		player.lose = 0 ;
+		initPlayer( manager , player ) ;
 	}
 }
 
 
 
-function matchMaker( playerList ) {
-	let a = rng.random( playerList.length ) ;
+function initPlayer( manager , player ) {
+	player.rating = manager.createRating() ;
+	player.count = 0 ;
+	player.win = 0 ;
+	player.lose = 0 ;
+}
+
+
+
+function matchMaker( playerList , forPlayer = null ) {
+	let a = forPlayer ? playerList.findIndex( v => v === forPlayer ) : rng.random( playerList.length ) ;
 	let b = rng.random( playerList.length - 1 ) ;
 	if ( b >= a ) { b ++ ; }
 	return [ playerList[ a ] , playerList[ b ] ] ;
@@ -83,6 +92,7 @@ function match( manager , playerA , playerB ) {
 		manager.registerWin( playerA.rating , playerB.rating ) ;
 		playerA.win ++ ;
 		playerB.lose ++ ;
+		return 1 ;
 	}
 	else {
 		// Player B wins
@@ -90,6 +100,7 @@ function match( manager , playerA , playerB ) {
 		manager.registerWin( playerB.rating , playerA.rating ) ;
 		playerB.win ++ ;
 		playerA.lose ++ ;
+		return -1 ;
 	}
 }
 
@@ -100,20 +111,24 @@ function displayPlayers( playerList ) {
 	//console.log( "\n\n" ) ;
 
 	for ( let player of sorted ) {
-		console.log(
-			string.format(
-				"%s: %i ELO (c:%i w:%i l:%i SK:%i)        Hist: %J" ,
-				player.name , player.rating.elo ,
-				player.count , player.win , player.lose , player.skill ,
-				player.rating.history.map( v => Math.floor( v.score ) )
-			)
-		) ;
+		displayPlayer( player ) ;
 	}
 }
 
 
 
-function test( manager , playerList , matchCount = 10 , sameLeague = false ) {
+function displayPlayer( player ) {
+	term( "%s: ^M%i^ ELO (n:%i w:%i l:%i SK:%i C:%P K:%[.3]f)        ^-Hist: %J\n" ,
+		player.name , player.rating.elo ,
+		player.count , player.win , player.lose , player.skill ,
+		player.rating.confidence , player.rating.k ,
+		player.rating.history.map( v => Math.floor( v.score ) )
+	) ;
+}
+
+
+
+async function test( manager , playerList , matchCount = 10 , sameLeague = false ) {
 	initPlayerList( manager , playerList ) ;
 
 	for ( let i = 0 ; i < matchCount ; i ++ ) {
@@ -125,6 +140,49 @@ function test( manager , playerList , matchCount = 10 , sameLeague = false ) {
 	}
 	
 	displayPlayers( playerList ) ;
+
+	await interactive( manager , playerList ) ;
+	term.processExit() ;
+}
+
+
+
+async function interactive( manager , playerList ) {
+	term.on( 'key' , function( key ) {
+		switch( key ) {
+			case 'CTRL_C' :
+				term.processExit() ;
+				break ;
+		}
+	} ) ;
+
+	term( "\nNew Player Name: " ) ;
+	var name = await term.inputField().promise || "Nobody" ;
+	term( "\nSkill: " ) ;
+	var skill = + ( await term.inputField().promise ) || 100 ;
+	term( "\n" ) ;
+	var player = { name , skill } ;
+	initPlayer( manager , player ) ;
+	playerList.push( player ) ;
+
+	for ( ;; ) {
+		term( "\nAnother match? [y/n] " ) ;
+		let more = await term.yesOrNo().promise ;
+		term( "\n" ) ;
+		if ( ! more ) { return ; }
+
+		let [ , otherPlayer ] = matchMaker( playerList , player ) ;
+		term( "%s (^g%i^:|^-%i^:) vs %s (^g%i^:|^-%i^:) => " ,
+			player.name , player.rating.elo , player.skill ,
+			otherPlayer.name , otherPlayer.rating.elo , otherPlayer.skill
+		) ;
+		let result = match( manager , player , otherPlayer ) ;
+		term( "%s\n" , result > 0 ? 'win' : result < 0 ? 'lose' : 'draw' ) ;
+		term( "Aftermath:\n" ) ;
+		displayPlayer( player ) ;
+		displayPlayer( otherPlayer ) ;
+		for ( let entry of player.rating.history ) { term( "%J\n" , entry ) ; }
+	}
 }
 
 
