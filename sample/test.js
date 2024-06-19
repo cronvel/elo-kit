@@ -19,7 +19,8 @@ var cliManager = new elo.Manager( {
 	delta: 100 ,
 	deltaOdds: 2 ,
 	baseReward: 10 ,
-	historySize: 12
+	historySize: 20 ,
+	kMax: 20
 } ) ;
 
 var cliPlayerList = require( './players.json' ) ;
@@ -118,11 +119,19 @@ function displayPlayers( playerList ) {
 
 
 function displayPlayer( player ) {
-	term( "%s: ^M%i^ ELO (n:%i w:%i l:%i SK:%i C:%P K:%[.3]f)        ^-Hist: %J\n" ,
+	term( "%s: ^M%i^ ELO (n:%i w:%i l:%i SK:%i C:%P K:%[.3]f)    ^-Hist Score: %J\n" ,
 		player.name , player.rating.elo ,
 		player.count , player.win , player.lose , player.skill ,
 		player.rating.confidence , player.rating.k ,
 		player.rating.history.map( v => Math.floor( v.score ) )
+	) ;
+}
+
+
+
+function displayHistoryEntry( entry ) {
+	term( ( entry.result > 0 ? "^g" : entry.result < 0 ? "^r" : "" ) + "r:%i adj:%i s:%i c:%P iElo:%i iVsElo:%i date:%s^:\n" ,
+		entry.result , entry.adjust , entry.score , entry.confidence , entry.initialElo , entry.initialOpponentElo , entry.date.toISOString()
 	) ;
 }
 
@@ -181,7 +190,9 @@ async function interactive( manager , playerList ) {
 		term( "Aftermath:\n" ) ;
 		displayPlayer( player ) ;
 		displayPlayer( otherPlayer ) ;
-		for ( let entry of player.rating.history ) { term( "%J\n" , entry ) ; }
+
+		for ( let entry of player.rating.history ) { displayHistoryEntry( entry ) ; }
+		term( "Retro ELO: %i\n" , player.rating.getRetroElo() ) ;
 	}
 }
 
