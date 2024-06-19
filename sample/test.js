@@ -20,7 +20,7 @@ var cliManager = new elo.Manager( {
 	deltaOdds: 2 ,
 	baseReward: 10 ,
 	historySize: 20 ,
-	kMax: 20
+	kMax: 10
 } ) ;
 
 var cliPlayerList = require( './players.json' ) ;
