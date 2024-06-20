@@ -1,6 +1,6 @@
 {
   "name": "elo-kit",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Elo rating system.",
   "main": "lib/elo.js",
   "directories": {
